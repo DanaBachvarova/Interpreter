@@ -50,7 +50,6 @@ void Lexer::advance()
     }
 }
 
-
 Token Lexer::nextToken()
 {
     while (std::isspace(currentChar()))
