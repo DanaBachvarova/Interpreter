@@ -1,9 +1,22 @@
-#include "lexer.hpp"
+#include "../include/lexer.hpp"
 #include <iostream>
 #include <cctype>
 #include <unordered_set>
 
 Lexer::Lexer(const std::string& source) : input(source), pos(0) {}
+
+std::vector<Token> Lexer::tokenize()
+{
+    std::vector<Token> tokens;
+    Token token = nextToken();
+    while (token.type != Token::Type::END)
+    {
+        tokens.push_back(token);
+        token = nextToken();
+    }
+
+    return tokens;
+}
 
 char Lexer::currentChar() const
 {
@@ -57,7 +70,7 @@ Token Lexer::nextToken()
         advance();
     }
 
-    if (currentChar() == '\0')
+    if (currentChar() == '\0')  
     {
         return Token(Token::Type::END, "");
     }
