@@ -17,6 +17,29 @@ struct Token
     std::string value;
 
     Token(Type t, const std::string& v) : type(t), value(v) {}
+
+    std::string printType () {
+        switch (type) {
+            case Type::KEYWORD:
+                return "KEYWORD";
+            case Type::IDENTIFIER:
+                return "IDENTIFIER";
+            case Type::NUMBER:
+                return "NUMBER";
+            case Type::OPERATOR:
+                return "OPERATOR";
+            case Type::SYMBOL:
+                return "SYMBOL";
+            case Type::END:
+                return "END";
+            case Type::PAREN:
+                return "PAREN";
+            case Type::UNKNOWN:
+                return "UNKNOWN";
+        }
+
+        return "";
+    }
 };
 
 class Lexer

@@ -28,24 +28,8 @@ Token Parser::peek() const
 
 Token Parser::consume()
 {
-    Token token = currentToken();
-    if (pos < tokens.size())
-    {
-        ++pos;
-    }
-
-    return token;
-}
-
-bool Parser::match(Token::Type type)
-{
-    if (currentToken().type == type)
-    {
-        consume();
-        return true;
-    }
-
-    return false;
+    ++pos;
+    return currentToken();
 }
 
 bool Parser::check(Token::Type type) const
@@ -68,6 +52,8 @@ Block* Parser::parseBlock()
         {
             block->statements.push_back(stmt);
         }
+
+        consume();
     }
 
     return block;
@@ -75,7 +61,7 @@ Block* Parser::parseBlock()
 
 Statement* Parser::parseStatement()
 {
-    if (match(Token::Type::KEYWORD))
+    if (check(Token::Type::KEYWORD))
     {
         if (currentToken().value == "LET")
         {
@@ -112,15 +98,20 @@ Statement* Parser::parseStatement()
 
 LetStatement* Parser::parseLetStatement()
 {
-    consume(); 
+    std::cout << "Parsing LET statement" << std::endl;
+    consume();
     if (check(Token::Type::IDENTIFIER))
     {
         std::string variableName = currentToken().value;
-        consume();
-        if (match(Token::Type::OPERATOR) && currentToken().value == "=")
+        if (peek().value == "=")
         {
+            consume();
             Expression* value = parseExpression();
             return new LetStatement(variableName, value);
+        }
+        else 
+        {
+            return new LetStatement(variableName);
         }
     }
 
@@ -133,7 +124,6 @@ ReadStatement* Parser::parseReadStatement()
     if (check(Token::Type::IDENTIFIER))
     {
         std::string variableName = currentToken().value;
-        consume();
         return new ReadStatement(variableName);
     }
 
@@ -142,7 +132,6 @@ ReadStatement* Parser::parseReadStatement()
 
 PrintStatement* Parser::parsePrintStatement()
 {
-    consume();
     Expression* value = parseExpression();
     return new PrintStatement(value);
 }
@@ -154,7 +143,7 @@ IfStatement* Parser::parseIfStatement()
     Expression* condition = parseExpression();
     Block* thenBlock = parseBlock();
     Block* elseBlock = nullptr;
-    if (match(Token::Type::KEYWORD) && currentToken().value == "ELSE")
+    if (check(Token::Type::KEYWORD) && currentToken().value == "ELSE")
     {
         elseBlock = parseBlock();
         return new IfStatement(condition, thenBlock, elseBlock);
@@ -177,7 +166,6 @@ LabelStatement* Parser::parseLabelStatement()
     if (check(Token::Type::IDENTIFIER))
     {
         std::string labelName = currentToken().value;
-        consume();
         return new LabelStatement(labelName);
     }
 
@@ -187,12 +175,42 @@ LabelStatement* Parser::parseLabelStatement()
 GotoStatement* Parser::parseGotoStatement()
 {
     consume();
+    
     if (check(Token::Type::IDENTIFIER))
     {
         std::string labelName = currentToken().value;
-        consume();
         return new GotoStatement(labelName);
     }
 
     throw std::runtime_error("Invalid GOTO statement");
+}
+
+Expression* Parser::parseExpression()
+{
+    consume();
+    if (check(Token::Type::NUMBER))
+    {
+        return new IntegerLiteral(std::stoi(currentToken().value));
+    }
+    else if (check(Token::Type::IDENTIFIER))
+    {
+        return new Variable(currentToken().value);
+    }
+
+    throw std::runtime_error("Invalid expression");
+}
+
+Expression* Parser::parseFactor()
+{
+    consume();
+    if (check(Token::Type::NUMBER))
+    {
+        return new IntegerLiteral(std::stoi(currentToken().value));
+    }
+    else if (check(Token::Type::IDENTIFIER))
+    {
+        return new Variable(currentToken().value);
+    }
+
+    throw std::runtime_error("Invalid expression");
 }

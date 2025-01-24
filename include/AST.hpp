@@ -41,6 +41,7 @@ public:
     Expression* value;
 
     LetStatement(const std::string& variableName, Expression* v);
+    LetStatement(const std::string& variableName);
     ~LetStatement();
 };
 

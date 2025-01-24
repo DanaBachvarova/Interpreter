@@ -1,5 +1,4 @@
-#include "../include/AST.hpp"
-#include "AST.hpp"
+#include "../include/ast.hpp"
 
 IntegerLiteral::IntegerLiteral(int v) : value(v) {}
 
@@ -16,6 +15,8 @@ Variable::Variable(const std::string &n) : name(n) {}
 
 LetStatement::LetStatement(const std::string &variableName, Expression *v)
     : variableName(variableName), value(v) {}
+
+LetStatement::LetStatement(const std::string &variableName) : variableName(variableName) {}
 
 LetStatement::~LetStatement()
 {
