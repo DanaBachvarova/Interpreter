@@ -1,57 +1,41 @@
+#include "../include/parser.hpp"
+#include "../include/ast.hpp"
+#include "../include/lexer.hpp"
 #include <iostream>
 #include <vector>
-#include <string>
-#include "../include/lexer.hpp" // Импортираме lexer
-#include "../include/ast.hpp" // Токените ще се използват тук
-#include "../include/parser.hpp" // Парсер за обработка на токени
 
 int main() {
-    // Входен текст за теста
+    // Примерен списък от токени за IF блок
     std::string input = R"(
-        LET x = 10
-        READ y
-        LABEL start
-        GOTO start
+        IF x > 10
+            LET y = 20
+            PRINT y
+        ELSE
+            LET y = 30
+            PRINT y
+        ENDIF
     )";
+    std::vector<Token> tokens = Lexer(input).tokenize();
+
+    // Създаваме парсер
+    Parser parser(tokens);
 
     try {
-        // Създаваме lexer и го използваме да токенизираме входния текст
-        Lexer lexer(input);
-        std::vector<Token> tokens = lexer.tokenize(); // Преобразуваме текст в токени
-
-        // Създаваме парсер и подаваме токените
-        Parser parser(tokens);
-
         // Парсваме блока
         Block* block = parser.parse();
 
-        // Проверяваме дали блокът е успешно парснат
-        if (!block || block->statements.empty()) {
-            std::cerr << "Парсването не върна резултат!" << std::endl;
-            return 1;
+        // Принтираме резултата
+        if (block) {
+            std::cout << "Parsed block successfully:\n";
+            block->print();
+        } else {
+            std::cout << "Failed to parse block.\n";
         }
 
-        // Обхождаме и проверяваме всяко изречение
-        for (Statement* stmt : block->statements) {
-            if (auto* readStmt = dynamic_cast<ReadStatement*>(stmt)) {
-                std::cout << "READ: " << readStmt->variableName << std::endl;
-            } else if (auto* letStmt = dynamic_cast<LetStatement*>(stmt)) {
-                std::cout << "LET: " << letStmt->variableName;
-                if (letStmt->value) {
-                    std::cout << " = " << letStmt->value;
-                }
-                std::cout << std::endl;
-            } else if (auto* labelStmt = dynamic_cast<LabelStatement*>(stmt)) {
-                std::cout << "LABEL: " << labelStmt->labelName << std::endl;
-            } else {
-                std::cout << "Неизвестно изречение!" << std::endl;
-            }
-        }
-
-        // Освобождаваме паметта
+        // Освобождаваме памет
         delete block;
-    } catch (const std::exception& ex) {
-        std::cerr << "Грешка: " << ex.what() << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error during parsing: " << e.what() << '\n';
     }
 
     return 0;

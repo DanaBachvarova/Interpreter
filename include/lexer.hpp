@@ -10,7 +10,7 @@
 struct Token
 {
     enum class Type {
-        KEYWORD, IDENTIFIER, NUMBER, OPERATOR, SYMBOL, END, PAREN, UNKNOWN
+        KEYWORD, IDENTIFIER, NUMBER, OPERATOR, SYMBOL, END, PAREN, UNKNOWN, DONE
     };
 
     Type type;

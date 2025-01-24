@@ -24,6 +24,8 @@ private:
     bool check(Token::Type type) const;
 
     Block* parseBlock();
+    Block* parseWhileBlock();
+    Block* parseIfBlock();
     Statement* parseStatement();
     Assignment* parseAssignment();
     LetStatement* parseLetStatement();
@@ -34,8 +36,6 @@ private:
     LabelStatement* parseLabelStatement();
     GotoStatement* parseGotoStatement();
     Expression* parseExpression();
-    Expression* parseTerm();
-    Expression* parseFactor();
 };
 
 #endif

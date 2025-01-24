@@ -59,6 +59,40 @@ Block* Parser::parseBlock()
     return block;
 }
 
+Block *Parser::parseWhileBlock()
+{
+    Block* block = new Block();
+    while (currentToken().value != "DONE")
+    {
+        Statement* stmt = parseStatement();
+        if (stmt)
+        {
+            block->statements.push_back(stmt);
+        }
+
+        consume();
+    }
+
+    return block;
+}
+
+Block *Parser::parseIfBlock()
+{
+    Block* block = new Block();
+    while (currentToken().value != "ENDIF" && currentToken().value != "ELSE")	
+    {
+        Statement* stmt = parseStatement();
+        if (stmt)
+        {
+            block->statements.push_back(stmt);
+        }
+
+        consume();
+    }
+
+    return block;
+}
+
 Statement* Parser::parseStatement()
 {
     if (check(Token::Type::KEYWORD))
@@ -98,7 +132,6 @@ Statement* Parser::parseStatement()
 
 LetStatement* Parser::parseLetStatement()
 {
-    std::cout << "Parsing LET statement" << std::endl;
     consume();
     if (check(Token::Type::IDENTIFIER))
     {
@@ -136,16 +169,15 @@ PrintStatement* Parser::parsePrintStatement()
     return new PrintStatement(value);
 }
 
-// тук трябва да дооправя, защото не е задължително да има Else
 IfStatement* Parser::parseIfStatement()
 {
-    consume();
     Expression* condition = parseExpression();
-    Block* thenBlock = parseBlock();
+    Block* thenBlock = parseIfBlock();
     Block* elseBlock = nullptr;
     if (check(Token::Type::KEYWORD) && currentToken().value == "ELSE")
     {
-        elseBlock = parseBlock();
+        consume();
+        elseBlock = parseIfBlock();
         return new IfStatement(condition, thenBlock, elseBlock);
     }
 
@@ -154,9 +186,8 @@ IfStatement* Parser::parseIfStatement()
 
 WhileStatement* Parser::parseWhileStatement()
 {
-    consume();
     Expression* condition = parseExpression();
-    Block* block = parseBlock();
+    Block* block = parseWhileBlock();
     return new WhileStatement(condition, block);
 }
 
@@ -186,21 +217,6 @@ GotoStatement* Parser::parseGotoStatement()
 }
 
 Expression* Parser::parseExpression()
-{
-    consume();
-    if (check(Token::Type::NUMBER))
-    {
-        return new IntegerLiteral(std::stoi(currentToken().value));
-    }
-    else if (check(Token::Type::IDENTIFIER))
-    {
-        return new Variable(currentToken().value);
-    }
-
-    throw std::runtime_error("Invalid expression");
-}
-
-Expression* Parser::parseFactor()
 {
     consume();
     if (check(Token::Type::NUMBER))
